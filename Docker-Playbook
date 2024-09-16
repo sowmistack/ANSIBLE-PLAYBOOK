@@ -207,4 +207,108 @@ websoft=httpd
       dest: /tmp/foo1.conf
       owner: ansible
 ---------------------------------------------------------------------
+To transfer a file directly to many servers:
+
+$ ansible all -m copy -a "src=/etc/hosts dest=/tmp/hosts"
+
+File Transfer
+ansible webservers -m file -a "dest=/var/tmp/a.txt mode=600"
+ansible webservers -m file -a "dest=/var/tmp/a.txt mode=600 owner=mdehaan group=mdehaan"
+
+The file module can also create directories, similar to mkdir -p:
+
+ansible webservers -m file -a "dest=/var/tmp/testing mode=755 owner=mdehaan group=mdehaan state=directory"
+
+
+As well as delete directories (recursively) and delete files:
+
+ansible webservers -m file -a "dest=/var/tmp/testing state=absent"
+
+---------------------------------------------------------
+
+Users and Groups
+
+The ‘user’ module allows easy creation and manipulation of existing user accounts, as well as removal of user accounts that may exist:
+
+ansible all -m user -a "name=foo password=KEnTeaStIFY"
+ansible all -m user -a "name=foo state=absent"
+
+------------------------------------------------------
+
+Managing Services
+
+Ensure a service is started on all webservers:
+
+ansible webservers -m service -a "name=httpd state=started"
+
+Alternatively, restart a service on all webservers:
+
+ansible webservers -m service -a "name=httpd state=restarted"
+
+Ensure a service is stopped:
+
+ansible webservers -m service -a "name=httpd state=stopped"
+
+------------------------------------------------------------
+
+ansible all -m command -a uptime 
+ansible all -m shell -a uptime 
+ansible all -a uptime
+**************************************************************************************************************************
+
+ansible ad hoc command to check memory usage
+
+ansible all -a "free -m"
+----------------------------------------------
+ad hoc command to Create a unix user group
+
+ansible all -m group -a "name=weblogic state=present" 
+**************************************************************************************************************************
+
+ad hoc command to Create a unix user
+
+ansible all -m user -a "name=weblogic group=weblogic createhome=yes" -b
+**************************************************************************************************************************
+
+ansible ad hoc command to Create a Directory with 755 permission 
+
+ansible all -m file -a "path=/opt/oracle state=directory mode=0755" -b
+
+--------------------------------------------------------------------------
+ansible ad hoc command to  check free disk space of hosts
+
+ansible all -a "df -h"
+**************************************************************************************************************************
+
+ansible all -m yum -a "name=httpd state=installed"
+
+-----------------------------------------------------------------
+ansible ad hoc command to Start or stop the service
+
+# To Start
+ansible multi -m service -a "name=httod state=started enabled=yes"
+# To Stop
+ansible multi -m service -a "name=httpd state=stop enabled=yes"
+
+------------------------------------------------------------------
+
+Managing Cron Job and Scheduling with Ansible ad hoc
+
+#  Run the job every 15 minutes
+$ ansible all -m cron -a "name='daily-cron-all-servers' minute=*/15 job='/path/to/minute-script.sh'"
+# Run the job every four hours
+$ ansible all -m cron -a "name='daily-cron-all-servers' hour=4 job='/path/to/hour-script.sh'"
+# Enabling a Job to run at system reboot
+$ ansible all -m cron -a "name='daily-cron-all-servers' special_time=reboot job='/path/to/startup-script.sh'"
+# Scheduling a Daily job
+$ ansible all -m cron -a "name='daily-cron-all-servers' special_time=daily job='/path/to/daily-script.sh'"
+# Scheduling a Weekly job
+$ ansible all -m cron -a "name='daily-cron-all-servers' special_time=weekly job='/path/to/daily-script.sh'"
+
+-----------------------------------------------------------------------------------
+ad hoc command to download file from URL
+
+ansible all -m get_url -a "url=https://nodejs.org/dist/v14.17.4/node-v14.17.4-linux-x64.tar.xz dest=/tmp mode=0755"
+
+
 
