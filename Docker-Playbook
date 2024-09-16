@@ -1,0 +1,210 @@
+---
+- name: Install Docker on Ubuntu
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Update apt package index
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Update apt package index after adding Docker repository
+      apt:
+        update_cache: yes
+
+    - name: Install Docker CE
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Install Docker Compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Ensure Docker is started and enabled
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add current user to Docker group (optional)
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+-------------------------------------------------------------------------------------------------------------
+---
+- name: install httpd
+  hosts: all
+  tasks:
+   - name: install httpd
+     yum:
+      name: httpd
+      state: latest
+---------------------------------------------------------------------------------------------------------------
+
+- name: Install a list of packages
+  yum:
+    name:
+      - httpd
+      - unzip
+    state: present
+
+---
+- name: install httpd
+  hosts: all
+  tasks:
+   - name: install httpd
+     yum:
+	  name: httpd
+	  state: latest
+   - name: restart web service
+	 service:
+	  name: httpd
+	  state: restarted
+-----------------------------------------------------------------------------------
+---
+- name: install httpd
+  hosts: all
+  tasks:
+   - name: install httpd
+     yum:
+      name: httpd
+      state: latest
+   - name: restart web service
+     service:
+      name: httpd
+      state: restarted
+   - name: install vsftpd
+     yum:
+      name: vsftpd
+      state: latest
+   - name: restart web service
+     service:
+      name: vsftpd
+      state: restarted
+-----------------------------------------------------------------------------------
+---
+- name: httpd install
+  hosts: node1,node2
+  tasks:
+   - name: httpd install
+     yum:
+      name: httpd
+      state: latest
+   - name: httpd service start
+     service:
+      name: httpd
+      state: started
+   - name: enable the service
+     service:
+      name: httpd
+      enabled: yes
+   - name: download the httpd.conf
+     get_url:
+      url: https://pepa.holla.cz/wp-content/uploads/2016/12/Ansible.pdf
+      dest: /var/www/html/ansible.pdf
+      mode: 0644
+      --------------------------------------------------------------------------------
+
+---
+- name: httpd install
+  hosts: node1,node2
+  tasks:
+   - name: httpd install
+     yum:
+      name: httpd
+      state: latest
+   - name: httpd service start
+     service:
+      name: httpd
+      state: started
+   - name: enable the service
+     service:
+      name: httpd
+      enabled: yes
+   - name: download the httpd.conf
+     get_url:
+      url: https://pepa.holla.cz/wp-content/uploads/2016/12/Ansible.pdf
+      dest: /var/www/html/ansible.pdf
+      mode: 0644
+     notify:
+      - restart httpd
+  handlers:
+   - name: restart httpd
+     service:
+      name: httpd
+      state: restarted
+---------------------------------------------------------------------------------------------------
+variables:
+vim hosts
+
+node1
+node2
+
+[prod]
+node1
+
+[backup]
+node2
+
+[all:vars]
+websoft=httpd
+----------
+---
+- name: installing packages
+  hosts: all
+  tasks:
+   - name: install {{ websoft }}
+     yum:
+      name: "{{ websoft }}"	
+	  state: latest
+   - name: start the {{ websoft }} service
+     service:
+	  name: "{{ websoft }}"
+	  state: restarted
+-----	  ---------------------------------------------------------------------------------------------------------
+---
+- name: Copy file with owner and permissions
+  hosts: all
+  tasks:
+   - name: Copy file with owner and permissions
+     copy:
+      src: /var/tmp/foo.conf
+      dest: /tmp/foo.conf
+      owner: ansible
+      group: ansible
+      mode: '0644'
+
+*******************************************************************************************************************
+---
+- name: Copy file with owner and permissions
+  hosts: all
+  tasks:
+   - name: Copy file with owner and permission, using symbolic representation
+     copy:
+      src: /var/tmp/foo.conf
+      dest: /tmp/foo1.conf
+      owner: ansible
+---------------------------------------------------------------------
+
